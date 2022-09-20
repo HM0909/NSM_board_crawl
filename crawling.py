@@ -44,20 +44,22 @@ def crawling():
     soup = bs(html, 'html.parser')
 
     board_main = soup.find("table",  {"class" : "tstyle-list"}) 
-    board_list = board_main.find_all("tr")
+    board_body = board_main.find("tbody")
+    board_list = board_body.find_all("tr")
 
     for item in board_list:    
         board_number = item.select_one("td")                              # 자료 번호
         board_number = re.sub('<.+?>', '', str(board_number)).strip()            
                 
         print(board_number)
-
-        data = board_main.find("td", {"class":"subject"})                                      
-        link = data.find("a")
+        
+        data = item.find("td", {"class":"subject"})                                         
+        link = data.find("a")                                                    
         link_url = link.get("href")                                        # 상세 URL
         
-        print("https://www.science.go.kr"+link_url)                                                          
+        print("https://www.science.go.kr"+link_url)   
         detail("https://www.science.go.kr"+link_url)
+   
 
 #상세 크롤링
 def detail(detail_url):
@@ -69,7 +71,7 @@ def detail(detail_url):
     view_header = detail_soup.find("div", {"id" : "detail-contents"})
     title = view_header.find("h1", {"class" : "view-title"}).text            # 제목
     
-   
+
     header_all = detail_soup.find("ul", {"class" : "info"})
     reg_date = header_all.select('span')[0].text                             # 등록일
     read_count = header_all.select('span')[1].text                           # 조회수 
@@ -77,18 +79,17 @@ def detail(detail_url):
     
     content = view_header.find("div", {"class" : "view-content"}).text       # 내용
     
-                                                  # 첨부파일 URL
+                                                                             # 첨부파일 URL
             
     print(title, reg_date, read_count, content)
 
+
 def main():
     
-    # login()
+    login()
          
     crawling()
-    
-    detail('detail_url')
-    
+            
     driver.quit()
          
 if __name__ == '__main__':
