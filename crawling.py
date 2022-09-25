@@ -5,6 +5,11 @@ from bs4 import BeautifulSoup as bs
 import urllib.request as ur
 import time
 from webdriver_manager.chrome import ChromeDriverManager    # Mac
+from db_manager import DatabaseManager
+
+HEADER = ['제목', '조회수', 'URL', '첨부파일URL', '작성자', '내용', '등록일']
+ARGV_COUNT = 2
+DATABASE_ID = "local"
 
 # 국립중앙과학관(NSM)
 
@@ -46,6 +51,8 @@ def crawling():
     board_main = soup.find("table",  {"class" : "tstyle-list"}) 
     board_body = board_main.find("tbody")
     board_list = board_body.find_all("tr")
+    
+    datas =[]
 
     for item in board_list:    
         board_number = item.select_one("td")                              # 자료 번호
@@ -57,32 +64,50 @@ def crawling():
         link = data.find("a")                                                    
         link_url = link.get("href")                                        # 상세 URL
         
-        print("https://www.science.go.kr"+link_url)   
-        detail("https://www.science.go.kr"+link_url)
-   
+        print("https://www.science.go.kr"+ link_url)   
+        # detail("https://www.science.go.kr"+link_url)
+        datas.append(detail(link_url, board_number))
 
+
+    if len(datas) > 0:
+        db = DatabaseManager(DATABASE_ID)
+        db.connection()
+        print(datas)
+        query = '''
+                INSERT INTO board_nsm (TITLE, WRITER, CONTENT, LINK_URL, READ_COUNT, REG_DATE, ATTACH_URL)
+                VALUES (
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s
+                )
+            '''        
+
+        db.execute_query_bulk(query, datas)        
+            
 #상세 크롤링
-def detail(detail_url):
-    driver.get(detail_url)
+def detail(detail_url, board_number):
+    driver.get("https://www.science.go.kr" + detail_url)
     
     detail_html = driver.page_source 
     detail_soup = bs(detail_html, 'html.parser')
 
     view_header = detail_soup.find("div", {"id" : "detail-contents"})
     title = view_header.find("h1", {"class" : "view-title"}).text            # 제목
-    
-
     header_all = detail_soup.find("ul", {"class" : "info"})
     reg_date = header_all.select('span')[0].text                             # 등록일
     read_count = header_all.select('span')[1].text                           # 조회수 
-            
-    
     content = view_header.find("div", {"class" : "view-content"}).text       # 내용
     
-                                                                             # 첨부파일 URL
-            
+    writer = ""
+    attach_url= ""                                                           # 첨부파일 URL
+    
     print(title, reg_date, read_count, content)
-
+     
+    return [title, writer, content, detail_url , read_count, reg_date, attach_url]
 
 def main():
     
