@@ -33,7 +33,7 @@ def login():
     time.sleep(5) 
     driver.find_element(By.ID, 'password').send_keys(password) 
     time.sleep(5) 
-    driver.find_element(By.XPATH, '//*[@id="loginForm"]/div/ul[2]/li/a').click()
+    element = driver.find_element(By.XPATH, '//*[@id="loginForm"]/div/ul[2]/li/a')
     driver.execute_script("arguments[0].click();", element)
     time.sleep(5)
 
@@ -46,9 +46,9 @@ def crawling():
     board_main = soup.find("table",  {"class" : "tstyle-list"}) 
     board_body = board_main.find("tbody")
     board_list = board_body.find_all("tr")
-        
+      
     datas =[]
-        
+              
     for list in board_list:
         board_number = list.find_all("td")
         list_number = board_number[0].text  # 번호
@@ -57,11 +57,12 @@ def crawling():
         link = link_list.find("a")
         list_url = link.get("href")
         link_url= "https://www.science.go.kr/board/view?" + list_url     # 상세 URL
-
-        detail(link_url)
         
+        detail(link_url)
+    
         datas.append(detail(link_url))
 
+    print(datas)
         
     if len(datas) > 0: 
                 db = DatabaseManager(DATABASE_ID) 
@@ -96,15 +97,21 @@ def detail(link_url):
 
     reg_date = header_body.select('span')[0].text                             # 등록일
     read_count = header_body.select('span')[1].text                           # 조회수
-            
+    
+    if read_count != "":
+        read_count = read_count.replace(",", "")
+    else:
+        read_count = 0   
+         
     # header_all = header_main.find_all("span")
-        
-    # reg_date = ""
-    # read_count = ""   
-                
+    # reg_date = header_all[0].text
+    # read_count = header_all[1].text    
+              
     content = main_header.find("div", {"class" : "view-content"}).text 
     
     attach_header = main_header.find("div",  {"class" : "board_list"})
+    
+    attach_url = ""
     
     if main_header.find("div",  {"class" : "board_list"}) != None:
         attach_list = attach_header.find("ul",  {"class" : "down_file"})
@@ -112,7 +119,8 @@ def detail(link_url):
         attach_url= attach.get("href") 
             
    
-        return [title, reg_date, link_url, read_count, content , attach_url]
+    return [title, reg_date, link_url, read_count, content , attach_url]
+
 
 
 def main(): 
