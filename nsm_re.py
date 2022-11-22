@@ -51,7 +51,7 @@ def crawling():
               
     for list in board_list:
         board_number = list.find_all("td")
-        list_number = board_number[0].text  # 번호
+        list_number = board_number[0].text                               # 번호
     
         link_list = list.find("td",  {"class" : "subject"}) 
         link = link_list.find("a")
@@ -102,16 +102,11 @@ def detail(link_url):
         read_count = read_count.replace(",", "")
     else:
         read_count = 0   
-         
-    # header_all = header_main.find_all("span")
-    # reg_date = header_all[0].text
-    # read_count = header_all[1].text    
-              
-    content = main_header.find("div", {"class" : "view-content"}).text 
+                      
+    content = main_header.find("div", {"class" : "view-content"}).text        # 내용
     
     attach_header = main_header.find("div",  {"class" : "board_list"})
-    
-    attach_url = ""
+    attach_url = ""                                                           # 파일 URL      
     
     if main_header.find("div",  {"class" : "board_list"}) != None:
         attach_list = attach_header.find("ul",  {"class" : "down_file"})
