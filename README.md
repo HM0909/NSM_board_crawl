@@ -1,0 +1,17 @@
+# NSM_board_crawl
+국립중앙과학관 사이트 크롤링
+
+Table Script
+```
+CREATE TABLE `board_nsm` (  
+  `SEQ` int(11) NOT NULL AUTO_INCREMENT COMMENT '시퀀스',
+  `BD_NUMBER` INT(11) NOT NULL COMMENT '글번호',
+  `LINK_URL` VARCHAR(5000) DEFAULT NULL COMMENT 'URL',
+  `TITLE` varchar(200) NOT NULL COMMENT '제목',  
+  `REG_DATE` varchar(20) NOT NULL COMMENT '등록일',
+  `READ_COUNT` INT(11) NOT NULL COMMENT '조회수',
+  `CONTENT` text COMMENT '내용',  
+  `ATTACH_URL` varchar(2000) DEFAULT NULL COMMENT '첨부파일 URL', 
+  PRIMARY KEY (`SEQ`)  
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+```
